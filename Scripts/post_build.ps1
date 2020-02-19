@@ -1,14 +1,18 @@
 param(
     [string]$config = "Release", 
-    [string]$solution
+    [string]$solution,
+	[string]$targetpath
 )
 Write-Host "Config: $config"
 
 function Build-Version {
-    if ([string]::IsNullOrEmpty($env:APPVEYOR_BUILD_VERSION)) {
+    
+	$buildversion = (Get-Command ${TargetPath}).FileVersionInfo.FileVersion
+	
+	if ([string]::IsNullOrEmpty($buildversion)) {
         $v = "1.2.0"
     } else {
-        $v = $env:APPVEYOR_BUILD_VERSION
+        $v = $buildversion
     }
 
     Write-Host "Build Version: $v"
@@ -72,7 +76,7 @@ function Zip-Release ($path, $version, $output) {
 
     $input = "$path\Output\Release"
     Write-Host "Input path:  $input"
-    $file = "$output\Wox-$version.zip"
+    $file = "$output\Wox-JJW24-$version.zip"
     Write-Host "Filename: $file"
 
     [Reflection.Assembly]::LoadWithPartialName("System.IO.Compression.FileSystem")
@@ -91,7 +95,7 @@ function Pack-Squirrel-Installer ($path, $version, $output) {
     Write-Host "Input path:  $input"
     Nuget pack $spec -Version $version -Properties Configuration=Release -BasePath $input -OutputDirectory  $output
 
-    $nupkg = "$output\Wox.$version.nupkg"
+    $nupkg = "$output\Wox-JJW24.$version.nupkg"
     Write-Host "nupkg path: $nupkg"
     $icon = "$path\Wox\Resources\app.ico"
     Write-Host "icon: $icon"
@@ -105,7 +109,7 @@ function Pack-Squirrel-Installer ($path, $version, $output) {
     Move-Item $temp\* $output -Force
     Remove-Item $temp
     
-    $file = "$output\Wox-$version.exe"
+    $file = "$output\Wox-JJW24-$version.exe"
     Write-Host "Filename: $file"
 
     Move-Item "$output\Setup.exe" $file -Force
