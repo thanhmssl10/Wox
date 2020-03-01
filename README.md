@@ -92,6 +92,6 @@ This project requires Windows 10 SDK:
 
 Documentation
 -------------
-- [Wiki](https://github.com/Wox-launcher/Wox/wiki)
+- [Wiki](https://github.com/jjw24/Wox/wiki)
 - Outdated doc: [WoX doc](http://doc.wox.one).
-- Just ask questions in [issues](https://github.com/Wox-launcher/Wox/issues) for now.
+- Just ask questions in [issues](https://github.com/jjw24/Wox/issues) for now.
