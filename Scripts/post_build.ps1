@@ -6,13 +6,10 @@ param(
 Write-Host "Config: $config"
 
 function Build-Version {
-    
-	$buildversion = (Get-Command ${TargetPath}).FileVersionInfo.FileVersion
-	
-	if ([string]::IsNullOrEmpty($buildversion)) {
-        $v = "1.2.0"
-    } else {
-        $v = $buildversion
+	if ([string]::IsNullOrEmpty($env:APPVEYOR_BUILD_VERSION)) {
+		$v = (Get-Command ${TargetPath}).FileVersionInfo.FileVersion
+	} else {
+        $v = $env:APPVEYOR_BUILD_VERSION
     }
 
     Write-Host "Build Version: $v"
