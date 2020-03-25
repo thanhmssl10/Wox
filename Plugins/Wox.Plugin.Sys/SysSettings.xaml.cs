@@ -9,10 +9,17 @@ namespace Wox.Plugin.Sys
         {
             InitializeComponent();
 
+            HighlightResultsEnabled.IsChecked = Main._settings.EnableHighlightData;
+
             foreach (var Result in Results)
             {
                 lbxCommands.Items.Add(Result);
             }
+        }
+
+        private void HighlightResults_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Main._settings.EnableHighlightData = HighlightResultsEnabled.IsChecked ?? false;
         }
     }
 }

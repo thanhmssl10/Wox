@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
 using Wox.Infrastructure;
+using Wox.Infrastructure.Storage;
 using Application = System.Windows.Application;
 using Control = System.Windows.Controls.Control;
 using FormsApplication = System.Windows.Forms.Application;
@@ -13,9 +14,11 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace Wox.Plugin.Sys
 {
-    public class Main : IPlugin, ISettingProvider, IPluginI18n
+    public class Main : IPlugin, ISettingProvider, IPluginI18n, ISavable
     {
         private PluginInitContext context;
+        public static Settings _settings { get; set; }
+        private readonly PluginJsonStorage<Settings> _settingsStorage;
 
         #region DllImport
 
@@ -44,6 +47,12 @@ namespace Wox.Plugin.Sys
 
         #endregion
 
+        public Main()
+        {
+            _settingsStorage = new PluginJsonStorage<Settings>();
+            _settings = _settingsStorage.Load();
+        }
+
         public Control CreateSettingPanel()
         {
             var results = Commands();
@@ -65,11 +74,15 @@ namespace Wox.Plugin.Sys
                     c.Score = score;
                     if (score == titleMatch.Score)
                     {
-                        c.TitleHighlightData = titleMatch.MatchData;
+                        c.TitleHighlightData = _settings.EnableHighlightData
+                                                    ? titleMatch.MatchData
+                                                    : new List<int>();
                     }
                     else 
                     {
-                        c.SubTitleHighlightData = subTitleMatch.MatchData;
+                        c.SubTitleHighlightData = _settings.EnableHighlightData
+                                                    ? subTitleMatch.MatchData
+                                                    : new List<int>();
                     }
                     results.Add(c);
                 }
@@ -261,6 +274,11 @@ namespace Wox.Plugin.Sys
         public string GetTranslatedPluginDescription()
         {
             return context.API.GetTranslation("wox_plugin_sys_plugin_description");
+        }
+
+        public void Save()
+        {
+            _settingsStorage.Save();
         }
     }
 }
