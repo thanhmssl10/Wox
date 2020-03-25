@@ -29,6 +29,8 @@ namespace Wox.Plugin.Everything
             };
 
             EditorPath.Content = _settings.EditorPath;
+
+            HighlightResultsEnabled.IsChecked = _settings.EnableHighlightData;
         }
 
         private void EditorPath_Clicked(object sender, RoutedEventArgs e)
@@ -44,6 +46,11 @@ namespace Wox.Plugin.Everything
             }
 
             EditorPath.Content = _settings.EditorPath;
+        }
+
+        private void HighlightResults_Click(object sender, RoutedEventArgs e)
+        {
+            _settings.EnableHighlightData = HighlightResultsEnabled.IsChecked ?? false;
         }
     }
 }

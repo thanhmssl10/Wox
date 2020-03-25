@@ -11,16 +11,20 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.Row="0" Grid.ColumnSpan="3" x:Name="UseLocationAsWorkingDir" Content="{DynamicResource wox_plugin_everything_use_location_as_working_dir}" Margin="10" HorizontalAlignment="Left" />
-            <Label Grid.Row="1" Margin="10" Content="{DynamicResource wox_plugin_everything_editor_path}"  HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="1" x:Name="EditorPath" Margin="10" HorizontalAlignment="Stretch" />
-            <Button Grid.Row="1" Grid.Column="2" x:Name="OpenEditorPath" Content="..." Margin="10" HorizontalAlignment="Right" Click="EditorPath_Clicked"/>
+            <StackPanel Grid.Row="0" Width="130" HorizontalAlignment="Left">
+                <CheckBox Name="HighlightResultsEnabled" Click="HighlightResults_Click" Margin="10,0,0,0" Content="Highlight Results" />
+            </StackPanel>
+            <CheckBox Grid.Row="1" Grid.ColumnSpan="3" x:Name="UseLocationAsWorkingDir" Content="{DynamicResource wox_plugin_everything_use_location_as_working_dir}" Margin="10" HorizontalAlignment="Left" />
+            <Label Grid.Row="2" Margin="10" Content="{DynamicResource wox_plugin_everything_editor_path}"  HorizontalAlignment="Left"/>
+            <Label Grid.Row="2" Grid.Column="1" x:Name="EditorPath" Margin="10" HorizontalAlignment="Stretch" />
+            <Button Grid.Row="2" Grid.Column="2" x:Name="OpenEditorPath" Content="..." Margin="10" HorizontalAlignment="Right" Click="EditorPath_Clicked"/>
         </Grid>
     </Border>
 </UserControl>

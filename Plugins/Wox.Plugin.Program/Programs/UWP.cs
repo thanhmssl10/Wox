@@ -296,18 +296,24 @@ namespace Wox.Plugin.Program.Programs
                     Description.Substring(0, DisplayName.Length) == DisplayName)
                 {
                     result.Title = Description;
-                    result.TitleHighlightData = StringMatcher.FuzzySearch(query, Description).MatchData;
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
+                                                    ? StringMatcher.FuzzySearch(query, Description).MatchData 
+                                                    : null;
                 }
                 else if (!string.IsNullOrEmpty(Description))
                 {
                     var title = $"{DisplayName}: {Description}";
                     result.Title = title;
-                    result.TitleHighlightData = StringMatcher.FuzzySearch(query, title).MatchData;
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
+                                                    ? StringMatcher.FuzzySearch(query, title).MatchData 
+                                                    : null;
                 }
                 else
                 {
                     result.Title = DisplayName;
-                    result.TitleHighlightData = StringMatcher.FuzzySearch(query, DisplayName).MatchData;
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
+                                                    ? StringMatcher.FuzzySearch(query, DisplayName).MatchData 
+                                                    : null;
                 }
                 return result;
             }

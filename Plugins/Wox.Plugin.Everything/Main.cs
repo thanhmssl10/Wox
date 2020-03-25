@@ -97,7 +97,9 @@ namespace Wox.Plugin.Everything
                 Title = Path.GetFileName(path),
                 SubTitle = path,
                 IcoPath = path,
-                TitleHighlightData = StringMatcher.FuzzySearch(keyword, Path.GetFileName(path)).MatchData,
+                TitleHighlightData = _settings.EnableHighlightData
+                                        ? StringMatcher.FuzzySearch(keyword, Path.GetFileName(path)).MatchData
+                                        : null,
                 Action = c =>
                 {
                     bool hide;
@@ -120,7 +122,9 @@ namespace Wox.Plugin.Everything
                     return hide;
                 },
                 ContextData = searchResult,
-                SubTitleHighlightData = StringMatcher.FuzzySearch(keyword, path).MatchData
+                SubTitleHighlightData = _settings.EnableHighlightData
+                                            ? StringMatcher.FuzzySearch(keyword, path).MatchData
+                                            : null
             };
             return r;
         }

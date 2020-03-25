@@ -7,14 +7,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using Newtonsoft.Json;
 using Wox.Infrastructure;
 using Wox.Infrastructure.Http;
 using Wox.Infrastructure.Logger;
+using Wox.Infrastructure.Storage;
+using Wox.Infrastructure.UserSettings;
 
 namespace Wox.Plugin.PluginManagement
 {
-    public class Main : IPlugin, IPluginI18n
+    public class Main : IPlugin, IPluginI18n, ISavable, ISettingProvider
     {
         private static string APIBASE = "http://api.wox.one";
         private static string PluginConfigName = "plugin.json";
@@ -23,6 +26,15 @@ namespace Wox.Plugin.PluginManagement
         private const string InstallCommand = "install";
         private const string UninstallCommand = "uninstall";
         private PluginInitContext context;
+
+        internal static Settings _settings { get; set; }
+        private readonly PluginJsonStorage<Settings> _settingsStorage;
+
+        public Main()
+        {
+            _settingsStorage = new PluginJsonStorage<Settings>();
+            _settings = _settingsStorage.Load();
+        }
 
         public List<Result> Query(Query query)
         {
@@ -143,8 +155,12 @@ namespace Wox.Plugin.PluginManagement
                     Title = r.name,
                     SubTitle = r.description,
                     IcoPath = "Images\\plugin.png",
-                    TitleHighlightData = StringMatcher.FuzzySearch(query.SecondSearch, r.name).MatchData,
-                    SubTitleHighlightData = StringMatcher.FuzzySearch(query.SecondSearch, r.description).MatchData,
+                    TitleHighlightData = _settings.EnableHighlightData
+                                            ? StringMatcher.FuzzySearch(query.SecondSearch, r.name).MatchData
+                                            : null,
+                    SubTitleHighlightData = _settings.EnableHighlightData
+                                                ? StringMatcher.FuzzySearch(query.SecondSearch, r.description).MatchData
+                                                : null,
                     Action = c =>
                     {
                         MessageBoxResult result = MessageBox.Show("Are you sure you wish to install the \'" + r.name + "\' plugin",
@@ -194,8 +210,12 @@ namespace Wox.Plugin.PluginManagement
                     Title = plugin.Name,
                     SubTitle = plugin.Description,
                     IcoPath = plugin.IcoPath,
-                    TitleHighlightData = StringMatcher.FuzzySearch(query.SecondSearch, plugin.Name).MatchData,
-                    SubTitleHighlightData = StringMatcher.FuzzySearch(query.SecondSearch, plugin.Description).MatchData,
+                    TitleHighlightData = _settings.EnableHighlightData
+                                            ? StringMatcher.FuzzySearch(query.SecondSearch, plugin.Name).MatchData
+                                            : null,
+                    SubTitleHighlightData = _settings.EnableHighlightData
+                                                ? StringMatcher.FuzzySearch(query.SecondSearch, plugin.Description).MatchData
+                                                : null,
                     Action = e =>
                     {
                         UnInstallPlugin(plugin);
@@ -254,6 +274,16 @@ namespace Wox.Plugin.PluginManagement
         public string GetTranslatedPluginDescription()
         {
             return context.API.GetTranslation("wox_plugin_plugin_management_plugin_description");
+        }
+
+        public void Save()
+        {
+            _settingsStorage.Save();
+        }
+
+        public Control CreateSettingPanel()
+        {
+            return new PluginManagementSettings();
         }
     }
 }

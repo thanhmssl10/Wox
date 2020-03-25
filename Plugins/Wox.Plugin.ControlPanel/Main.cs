@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Windows.Controls;
 using Wox.Infrastructure;
+using Wox.Infrastructure.Storage;
 
 namespace Wox.Plugin.ControlPanel
 {
-    public class Main : IPlugin, IPluginI18n
+    public class Main : IPlugin, IPluginI18n, ISavable, ISettingProvider
     {
         private PluginInitContext context;
         private List<ControlPanelItem> controlPanelItems = new List<ControlPanelItem>();
         private string iconFolder;
         private string fileType;
+        internal static Settings _settings { get; set; }
+        private readonly PluginJsonStorage<Settings> _settingsStorage;
+
+        public Main()
+        {
+            _settingsStorage = new PluginJsonStorage<Settings>();
+            _settings = _settingsStorage.Load();
+        }
 
         public void Init(PluginInitContext context)
         {
@@ -71,11 +80,15 @@ namespace Wox.Plugin.ControlPanel
 
                     if (item.Score == titleMatch.Score)
                     {
-                        result.TitleHighlightData = titleMatch.MatchData;
+                        result.TitleHighlightData = _settings.EnableHighlightData
+                                                        ? titleMatch.MatchData
+                                                        : null;
                     }
                     else
                     {
-                        result.SubTitleHighlightData = subTitleMatch.MatchData;
+                        result.SubTitleHighlightData = _settings.EnableHighlightData
+                                                       ? subTitleMatch.MatchData
+                                                       : null ;
                     }
 
                     results.Add(result);
@@ -94,6 +107,16 @@ namespace Wox.Plugin.ControlPanel
         public string GetTranslatedPluginDescription()
         {
             return context.API.GetTranslation("wox_plugin_controlpanel_plugin_description");
+        }
+
+        public void Save()
+        {
+            _settingsStorage.Save();
+        }
+
+        public Control CreateSettingPanel()
+        {
+            return new ControlPanelSettings();
         }
     }
 }

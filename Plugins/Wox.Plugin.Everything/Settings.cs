@@ -16,6 +16,8 @@ namespace Wox.Plugin.Everything
         public int MaxSearchCount { get; set; } = DefaultMaxSearchCount;
 
         public bool UseLocationAsWorkingDir { get; set; } = false;
+        
+        public bool EnableHighlightData { get; set; } = false;
     }
 
     public class ContextMenu
