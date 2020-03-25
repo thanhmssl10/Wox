@@ -22,6 +22,7 @@ namespace Wox.Plugin.Folder
             InitializeComponent();
             _settings = settings;
             lbxFolders.ItemsSource = _settings.FolderLinks;
+            HighlightResultsEnabled.IsChecked = _settings.EnableHighlightData;
         }
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)
@@ -125,6 +126,11 @@ namespace Wox.Plugin.Folder
             {
                 e.Effects = DragDropEffects.None;
             }
+        }
+
+        private void HighlightResults_Click(object sender, RoutedEventArgs e)
+        {
+            _settings.EnableHighlightData = HighlightResultsEnabled.IsChecked ?? false;
         }
     }
 }

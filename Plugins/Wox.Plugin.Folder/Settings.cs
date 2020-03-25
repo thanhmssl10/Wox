@@ -8,5 +8,7 @@ namespace Wox.Plugin.Folder
     {
         [JsonProperty]
         public List<FolderLink> FolderLinks { get; set; } = new List<FolderLink>();
+        
+        public bool EnableHighlightData { get; set; } = false;
     }
 }

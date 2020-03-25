@@ -95,7 +95,9 @@ namespace Wox.Plugin.Folder
                 Title = title,
                 IcoPath = path,
                 SubTitle = subtitle,
-                TitleHighlightData = StringMatcher.FuzzySearch(query.Search, title).MatchData,
+                TitleHighlightData = _settings.EnableHighlightData
+                                        ? StringMatcher.FuzzySearch(query.Search, title).MatchData
+                                        : null,
                 Action = c =>
                 {
                     if (c.SpecialKeyState.CtrlPressed)
@@ -222,7 +224,7 @@ namespace Wox.Plugin.Folder
                     }
                     else
                     {
-                        fileList.Add(CreateFileResult(fileSystemInfo.FullName, query));
+                        fileList.Add(CreateFileResult(fileSystemInfo.FullName, query, _settings.EnableHighlightData));
                     }
                 }
             }
@@ -242,14 +244,16 @@ namespace Wox.Plugin.Folder
             return results.Concat(folderList.OrderBy(x => x.Title)).Concat(fileList.OrderBy(x => x.Title)).ToList();
         }
 
-        private static Result CreateFileResult(string filePath, Query query)
+        private static Result CreateFileResult(string filePath, Query query, bool enableHighlightData)
         {
             var result = new Result
             {
                 Title = Path.GetFileName(filePath),
                 SubTitle = filePath,
                 IcoPath = filePath,
-                TitleHighlightData = StringMatcher.FuzzySearch(query.Search, Path.GetFileName(filePath)).MatchData,
+                TitleHighlightData = enableHighlightData
+                                        ? StringMatcher.FuzzySearch(query.Search, Path.GetFileName(filePath)).MatchData
+                                        : null,
                 Action = c =>
                 {
                     try
