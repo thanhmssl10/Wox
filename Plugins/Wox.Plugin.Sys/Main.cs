@@ -76,13 +76,13 @@ namespace Wox.Plugin.Sys
                     {
                         c.TitleHighlightData = _settings.EnableHighlightData
                                                     ? titleMatch.MatchData
-                                                    : new List<int>();
+                                                    : null;
                     }
                     else 
                     {
                         c.SubTitleHighlightData = _settings.EnableHighlightData
                                                     ? subTitleMatch.MatchData
-                                                    : new List<int>();
+                                                    : null;
                     }
                     results.Add(c);
                 }
