@@ -298,7 +298,7 @@ namespace Wox.Plugin.Program.Programs
                     result.Title = Description;
                     result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, Description).MatchData 
-                                                    : new List<int>();
+                                                    : null;
                 }
                 else if (!string.IsNullOrEmpty(Description))
                 {
@@ -306,14 +306,14 @@ namespace Wox.Plugin.Program.Programs
                     result.Title = title;
                     result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, title).MatchData 
-                                                    : new List<int>();
+                                                    : null;
                 }
                 else
                 {
                     result.Title = DisplayName;
                     result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, DisplayName).MatchData 
-                                                    : new List<int>();
+                                                    : null;
                 }
                 return result;
             }
