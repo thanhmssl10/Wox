@@ -42,6 +42,7 @@ namespace Wox.Plugin.Program.Views
 
             StartMenuEnabled.IsChecked = _settings.EnableStartMenuSource;
             RegistryEnabled.IsChecked = _settings.EnableRegistrySource;
+            HighlightResultsEnabled.IsChecked = _settings.ShouldHighlightData;
         }
 
         private void ReIndexing()
@@ -302,6 +303,11 @@ namespace Wox.Plugin.Program.Views
             {
                 btnProgramSourceStatus.Content = "Enable";
             }
+        }
+
+        private void HighlightResults_Click(object sender, RoutedEventArgs e)
+        {
+            _settings.ShouldHighlightData = HighlightResultsEnabled.IsChecked ?? false;
         }
     }
 }
