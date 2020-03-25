@@ -75,7 +75,7 @@ namespace Wox.Plugin.Program.Programs
                 Description.Substring(0, Name.Length) == Name)
             {
                 result.Title = Description;
-                result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                result.TitleHighlightData = Main._settings.EnableHighlightData
                                                 ? StringMatcher.FuzzySearch(query, Description).MatchData 
                                                 : new List<int>();
             }
@@ -83,14 +83,14 @@ namespace Wox.Plugin.Program.Programs
             {
                 var title = $"{Name}: {Description}";
                 result.Title = title;
-                result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                result.TitleHighlightData = Main._settings.EnableHighlightData
                                                 ? StringMatcher.FuzzySearch(query, title).MatchData 
                                                 : new List<int>();
             }
             else
             {
                 result.Title = Name;
-                result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                result.TitleHighlightData = Main._settings.EnableHighlightData
                                                 ? StringMatcher.FuzzySearch(query, Name).MatchData 
                                                 : new List<int>();
             }

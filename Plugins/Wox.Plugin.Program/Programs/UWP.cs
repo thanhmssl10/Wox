@@ -296,7 +296,7 @@ namespace Wox.Plugin.Program.Programs
                     Description.Substring(0, DisplayName.Length) == DisplayName)
                 {
                     result.Title = Description;
-                    result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, Description).MatchData 
                                                     : new List<int>();
                 }
@@ -304,14 +304,14 @@ namespace Wox.Plugin.Program.Programs
                 {
                     var title = $"{DisplayName}: {Description}";
                     result.Title = title;
-                    result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, title).MatchData 
                                                     : new List<int>();
                 }
                 else
                 {
                     result.Title = DisplayName;
-                    result.TitleHighlightData = Main._settings.ShouldHighlightData 
+                    result.TitleHighlightData = Main._settings.EnableHighlightData
                                                     ? StringMatcher.FuzzySearch(query, DisplayName).MatchData 
                                                     : new List<int>();
                 }
