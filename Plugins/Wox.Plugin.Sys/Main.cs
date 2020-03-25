@@ -17,7 +17,7 @@ namespace Wox.Plugin.Sys
     public class Main : IPlugin, ISettingProvider, IPluginI18n, ISavable
     {
         private PluginInitContext context;
-        public static Settings _settings { get; set; }
+        internal static Settings _settings { get; set; }
         private readonly PluginJsonStorage<Settings> _settingsStorage;
 
         #region DllImport

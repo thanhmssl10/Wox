@@ -1,8 +1,8 @@
 ﻿
 namespace Wox.Plugin.Sys
 {
-    public class Settings
+    internal class Settings
     {
-        public bool EnableHighlightData { get; set; } = false;
+        internal bool EnableHighlightData { get; set; } = false;
     }
 }
