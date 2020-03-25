@@ -15,7 +15,7 @@ namespace Wox.Plugin.Program
 
         public bool EnableRegistrySource { get; set; } = true;
 
-        internal bool EnableHighlightData { get; set; } = false;
+        public bool EnableHighlightData { get; set; } = false;
 
         internal const char SuffixSeperator = ';';
 
