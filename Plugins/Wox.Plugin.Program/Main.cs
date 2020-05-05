@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Wox.Infrastructure.Logger;
 using Wox.Infrastructure.Storage;
+using Wox.Plugin.Program.Logger;
 using Wox.Plugin.Program.Programs;
 using Wox.Plugin.Program.Views;
 using Stopwatch = Wox.Infrastructure.Stopwatch;
@@ -96,6 +98,7 @@ namespace Wox.Plugin.Program
 
         public static void IndexWin32Programs()
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:IndexWin32Programs, Starting index win32 programs");
             var win32S = Win32.All(_settings);
             lock (IndexLock)
             {
@@ -105,9 +108,10 @@ namespace Wox.Plugin.Program
 
         public static void IndexUWPPrograms()
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:IndexWin32Programs, Starting index uwp programs");
             var windows10 = new Version(10, 0);
             var support = Environment.OSVersion.Version.Major >= windows10.Major;
-
+            
             var applications = support ? UWP.All() : new UWP.Application[] { };
             lock (IndexLock)
             {
@@ -117,6 +121,7 @@ namespace Wox.Plugin.Program
 
         public static void IndexPrograms()
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:IndexPrograms, Starting index programs");
             var t1 = Task.Run(() => IndexWin32Programs());
 
             var t2 = Task.Run(() => IndexUWPPrograms());
@@ -193,10 +198,16 @@ namespace Wox.Plugin.Program
 
         public static void StartProcess(Func<ProcessStartInfo, Process> runProcess, ProcessStartInfo info)
         {
-            bool hide;
             try
             {
+                Log.Debug($"|Wox.Plugin.Program|Main.cs:StartProcess, Starting a process:<{info.FileName}>");
                 runProcess(info);
+            }
+            catch (Win32Exception)
+            {
+                // https://stackoverflow.com/questions/7693429/process-start-to-open-an-url-getting-an-exception
+                Log.Warn($"|Wox.Plugin.Program|Main.cs|StartProcess|Caught a Win32Exception, but probably a known issue:<{info.FileName}>");
+                Process.Start("IExplore.exe", info.FileName);
             }
             catch (Exception)
             {

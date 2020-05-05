@@ -6,10 +6,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Shell;
 using Wox.Infrastructure;
+using Wox.Infrastructure.Logger;
 using Wox.Plugin.Program.Logger;
 using Wox.Plugin.SharedCommands;
 
@@ -30,6 +32,7 @@ namespace Wox.Plugin.Program.Programs
         public string Location => ParentDirectory;
 
         private const string ShortcutExtension = "lnk";
+        private const string UrlShortCutExtension = "url";
         private const string ApplicationReferenceExtension = "appref-ms";
         private const string ExeExtension = "exe";
 
@@ -62,7 +65,8 @@ namespace Wox.Plugin.Program.Programs
                     var info = new ProcessStartInfo
                     {
                         FileName = FullPath,
-                        WorkingDirectory = ParentDirectory
+                        WorkingDirectory = ParentDirectory,
+                        UserName =  null // If Username !null (include empty string) then InvalidOperationException, ref:MSDN
                     };
 
                     Main.StartProcess(Process.Start, info);
@@ -239,6 +243,68 @@ namespace Wox.Plugin.Program.Programs
 #endif
         }
 
+        private static Win32 UrlShortcutProgram(string path)
+        {
+            var program = Win32Program(path);
+#if !DEBUG //Only do a catch all in production. This is so make developer aware of any unhandled exception and add the exception handling in.
+            try
+            {
+#endif
+                Thread staThread = new Thread(
+                    () =>
+                    {
+                                        
+                        var shell = new Shell32.Shell();
+
+                        string dirPath = path.Substring(0, path.LastIndexOf("\\"));
+                        string nameFile = path.Substring(path.LastIndexOf("\\") + 1);
+
+                        var dirShortcut = shell.NameSpace(dirPath);
+                        var itemShortcut = dirShortcut.Items().Item(nameFile);
+
+                        if (itemShortcut == null)
+                        {
+                            Log.Error($"|Wox.Plugin.Program|Win32.cs|UrlShortcutProgram|Cannot find shortcut file '{path}'");
+                            program.Valid = false;
+                            return ;
+                        }
+
+                        if (!itemShortcut.IsLink)
+                        {
+                            Log.Error($"|Wox.Plugin.Program|Win32.cs|UrlShortcutProgram|File '{path}' is not a shortcut");
+                            program.Valid = false;
+                            return ;
+                        }
+
+                        var lnk = (Shell32.ShellLinkObject) itemShortcut.GetLink;
+
+                        program.Description = lnk.Description;
+                        program.Name = itemShortcut.Name;
+                        program.FullPath = lnk.Path;
+
+                        var icoPath = "";
+                        lnk.GetIconLocation(out icoPath);
+                        program.IcoPath = icoPath;
+                    });
+                
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+
+                return program;
+#if !DEBUG //Only do a catch all in production. This is so make developer aware of any unhandled exception and add the exception handling in.
+            }
+            catch (Exception e)
+            {
+                ProgramLogger.LogException($"|Win32|LnkProgram|{path}" +
+                                                "|An unexpected error occurred in the calling method LnkProgram", e);
+
+                program.Valid = false;
+                return program;
+            }
+#endif
+        }
+
         private static Win32 ExeProgram(string path)
         {
             try
@@ -322,6 +388,7 @@ namespace Wox.Plugin.Program.Programs
 
         private static ParallelQuery<Win32> UnregisteredPrograms(List<Settings.ProgramSource> sources, string[] suffixes)
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:UnregisteredPrograms, Starting index UnregisteredPrograms");
             var listToAdd = new List<string>();
             sources.Where(s => Directory.Exists(s.Location) && s.Enabled)
                 .SelectMany(s => ProgramPaths(s.Location, suffixes))
@@ -343,6 +410,7 @@ namespace Wox.Plugin.Program.Programs
 
         private static ParallelQuery<Win32> StartMenuPrograms(string[] suffixes)
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:StartMenuPrograms, Starting index StartMenuPrograms");
             var disabledProgramsList = Main._settings.DisabledProgramSources;
 
             var directory1 = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
@@ -352,19 +420,31 @@ namespace Wox.Plugin.Program.Programs
 
             var toFilter = paths1.Concat(paths2);
             var paths = toFilter
-                        .Where(t1 => !disabledProgramsList.Any(x => x.UniqueIdentifier == t1))
-                        .Select(t1 => t1)
-                        .Distinct()
-                        .ToArray();
-
-            var programs1 = paths.AsParallel().Where(p => Extension(p) == ShortcutExtension).Select(LnkProgram);
-            var programs2 = paths.AsParallel().Where(p => Extension(p) == ApplicationReferenceExtension).Select(Win32Program);
-            var programs = programs1.Concat(programs2).Where(p => p.Valid);
+                .Where(t1 => !disabledProgramsList.Any(x => x.UniqueIdentifier == t1))
+                .Select(t1 => t1)
+                .Distinct()
+                .ToArray();
+            
+            var programs1 = paths.AsParallel()
+                .Where(p => Extension(p) == ShortcutExtension)
+                .Select(LnkProgram);
+            var programs2 = paths.AsParallel()
+                .Where(p => Extension(p) == ApplicationReferenceExtension)
+                .Select(Win32Program);
+            var urlShortcutPrograms = paths.AsParallel()
+                .Where(p =>Extension(p) == UrlShortCutExtension)
+                .Select(UrlShortcutProgram);
+            
+            var programs = programs1
+                .Concat(programs2)
+                .Concat(urlShortcutPrograms)
+                .Where(p => p.Valid);
             return programs;
         }
 
         private static ParallelQuery<Win32> AppPathsPrograms(string[] suffixes)
         {
+            Log.Debug("|Wox.Plugin.Program|Main.cs:AppPathsPrograms, Starting index AppPathsPrograms");
             // https://msdn.microsoft.com/en-us/library/windows/desktop/ee872121
             const string appPaths = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths";
             var programs = new List<Win32>();
